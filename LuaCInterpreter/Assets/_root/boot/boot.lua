@@ -1,0 +1,8 @@
+﻿print(booting);
+
+
+
+
+
+
+print(finished);
