@@ -67,6 +67,8 @@ namespace LuaCInterpreter
                 {
                     if (_prog[count].IndexOf(Refer.End) > -1) { _prog[count] = _prog[count].Replace(Refer.End, " "); openclose += "}"; openclose = openclose.Replace("{}", ""); if (openclose == "") { break; } }
                     _prog[count] = _prog[count].Replace(Refer.Else, "").Replace(Refer.If, "").Replace(Refer.For, "").Replace(Refer.While, "").Replace(Refer.Then, "").Replace(Refer.Do, "");
+
+                    if (_prog[0].IndexOf(Refer.Return) > -1) { return new List<string> { _prog[0] }; }
                     Ex.Execute(_prog[count]);
                     count++;
                     //_prog.RemoveAt(count);
@@ -85,6 +87,7 @@ namespace LuaCInterpreter
                     for (int i = 0; count + i < _prog.LongCount(); i++) { pro.Add(_prog[i + count]); }
 
                     pro = IF.IF(pro);
+                    if (pro[0].IndexOf(Refer.Return) > -1) { return new List<string> { pro[0] }; }
 
                     for (int j = 0; j < pro.LongCount(); j++) { count++; }//prog.RemoveAt(count); prog.Add(pro[j]);
                 }
@@ -94,6 +97,7 @@ namespace LuaCInterpreter
                     for (int i = 0; count + i < _prog.LongCount(); i++) { pro.Add(Lines[i + count]); }
 
                     pro = FOR(pro);
+                    if (pro[0].IndexOf(Refer.Return) > -1) { return new List<string> { pro[0] }; }
 
                     for (int j = 0; j < pro.LongCount(); j++) { count++; }
                 }
@@ -103,6 +107,7 @@ namespace LuaCInterpreter
                     for (int i = 0; count + i < _prog.LongCount(); i++) { pro.Add(Lines[i + count]); }
 
                     pro = WHILE.WHILE(pro);
+                    if (pro[0].IndexOf(Refer.Return) > -1) { return new List<string> { pro[0] }; }
 
                     for (int j = 0; j < pro.LongCount(); j++) { count++; }
                 }

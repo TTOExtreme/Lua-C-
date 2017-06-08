@@ -18,6 +18,8 @@ namespace LuaCInterpreter.Variables
 
             #region Vars 
             LV.Get();
+
+            bool brea = false;
             foreach (VariablesStruct v in LV.vars)
             {
                 if (command.IndexOf(v.Name) > -1)
@@ -28,12 +30,14 @@ namespace LuaCInterpreter.Variables
                     {
                         foreach (string s2 in st)
                         {
-                            if (command.IndexOf(s2 + v.Name + s1) > -1) { command = command.Replace(s2 + v.Name + s1, s2 + v.Value.ToString() + s1); }
-                            if (command.IndexOf(s1 + v.Name + s2) > -1) { command = command.Replace(s1 + v.Name + s2, s1 + v.Value.ToString() + s2); }
+                            if (command.IndexOf(s2 + v.Name + s1) > -1) { command = command.Replace(s2 + v.Name + s1, s2 + v.Value.ToString() + s1); brea = true; break; }
+                            if (command.IndexOf(s1 + v.Name + s2) > -1) { command = command.Replace(s1 + v.Name + s2, s1 + v.Value.ToString() + s2); brea = true; break; }
                             //if (command.IndexOf(v.Name + s1) > -1) { command = command.Replace(v.Name + s1, v.Value.ToString() + s1); }
                             //if (command.IndexOf(s1 + v.Name) > -1) { command = command.Replace(s1 + v.Name, s1 + v.Value.ToString()); }
-                            if (command == v.Name) { command = command.Replace(v.Name, v.Value.ToString()); }
+                            if (command == v.Name) { command = command.Replace(v.Name, v.Value.ToString()); brea = true; break; }
                         }
+                        if (brea) {
+                            break; }
                     }
                 }
             }
@@ -71,7 +75,7 @@ namespace LuaCInterpreter.Variables
         public void VarSum(string var, double val)
         {
             if (var.IndexOf(" ") > -1) { var = var.Replace(" ", ""); }
-            LV.Get();
+            //LV.Get();
             foreach (VariablesStruct v in LV.vars)
             {
                 if (v.Name == var)
@@ -115,35 +119,35 @@ namespace LuaCInterpreter.Variables
         //insert new variable or rewrite
         public void VarAdd(VariablesStruct v)
         {
-            LV.Get();
-            if (v.Type == "Local")
+            if (v.Value.ToString() == "NaN" || v.Value.ToString() == "") { v.Value = "null"; }
+            if (v.Name != "" && v.Name != " ")
             {
-                for (int i = 0; i < LV.vars.LongCount(); i++)
+                if (v.Type == "Local")
                 {
-                    VariablesStruct va = LV.vars[i];
-                    if (va.Name == v.Name) { va = v; LV.vars[i] = va; LV.Set(); return; }
-                    LV.vars[i] = va;
-                }
-                LV.vars.Add(v);
-                LV.Set();
-            }
-            else
-            {
-                GV.Get();
-                for (int i = 0; i < GV.vars.LongCount(); i++)
-                {
-                    VariablesStruct va = GV.vars[i];
-                    if (va.Name == v.Name)
+                    for (int i = 0; i < LV.vars.LongCount(); i++)
                     {
-                        va = v;
-                        GV.vars[i] = va;
-                        GV.Set();
-                        return;
+                        VariablesStruct va = LV.vars[i];
+                        if (va.Name == v.Name) { va = v; LV.vars[i] = va; LV.Set(); return; }
+                        LV.vars[i] = va;
                     }
-                    GV.vars[i] = va;
+                    LV.vars.Add(v);
                 }
-                GV.vars.Add(v);
-                GV.Set();
+                else
+                {
+                    for (int i = 0; i < GV.vars.LongCount(); i++)
+                    {
+                        VariablesStruct va = GV.vars[i];
+                        if (va.Name == v.Name)
+                        {
+                            va = v;
+                            GV.vars[i] = va;
+                            GV.Set();
+                            return;
+                        }
+                        GV.vars[i] = va;
+                    }
+                    GV.vars.Add(v);
+                }
             }
         }
 

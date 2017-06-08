@@ -49,6 +49,7 @@ namespace LuaCInterpreter
                 while (prog[0] != Refer.Else && (prog[0].IndexOf(Refer.If) == -1 || prog[0].IndexOf(Refer.While) == -1 || prog[0].IndexOf(Refer.For) == -1) && openclose != "")
                 {
                     if (prog[0].IndexOf(Refer.End) > -1) { openclose += "}"; openclose = openclose.Replace("{}", ""); if (openclose == "") { break; } }
+                    if (prog[0].IndexOf(Refer.Return) > -1) { return new List<string> { prog[0] }; }
                     Ex.Execute(prog[0]);
                     prog.RemoveAt(0);
                     if (prog.LongCount() == 0) { return prog; }
@@ -86,6 +87,7 @@ namespace LuaCInterpreter
                 {
                     while (prog[0].IndexOf(Refer.End) < 0 && prog[0].IndexOf(Refer.Then) < 0 && prog[0].IndexOf(Refer.Do) < 0)
                     {
+                        if (prog[0].IndexOf(Refer.Return) > -1) { return new List<string> { prog[0] }; }
                         Ex.Execute(prog[0]);
                         prog.RemoveAt(0);
                         if (prog.LongCount() == 0) { return prog; }
@@ -94,14 +96,17 @@ namespace LuaCInterpreter
                 if (prog[0].IndexOf(Refer.If) > -1 && prog[0].IndexOf(Refer.Then) > -1)
                 {
                     prog = IF(prog);
+                    if (prog[0].IndexOf(Refer.Return) > -1) { return new List<string> { prog[0] }; }
                 }
                 if (prog[0].IndexOf(Refer.For) > -1 && prog[0].IndexOf(Refer.Do) > -1)
                 {
                     prog = FOR.FOR(prog);
+                    if (prog[0].IndexOf(Refer.Return) > -1) { return new List<string> { prog[0] }; }
                 }
                 if (prog[0].IndexOf(Refer.While) > -1 && prog[0].IndexOf(Refer.Do) > -1)
                 {
                     prog = WHILE.WHILE(prog);
+                    if (prog[0].IndexOf(Refer.Return) > -1) { return new List<string> { prog[0] }; }
                 }
             }
             return prog;

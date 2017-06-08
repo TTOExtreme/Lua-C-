@@ -19,6 +19,7 @@ namespace LuaCInterpreter
 
         public string Function = "function";
         public string FunctionEnd = "end";
+        public string Return = "return";
 
         public string Comment = "--";
 
@@ -38,8 +39,9 @@ namespace LuaCInterpreter
         public string[] Replaceble = { " ", ")", "(", "]", "[", "{", "}", "+", "-", "/", "#", "%", "!", "=", "*", ",", ".", ";", "&", "_" };
         //==================== ERRORS ====================\\
         public string ErrorHead = "[ERROR] ";
-        public string ErrorNFC = "Command Not Found :( ";
-        public string ErrorNFF = "File or Folder Not Found :( ";
+        public string ErrorNFC = "Command Not Found :( \n";
+        public string ErrorNFF = "File or Folder Not Found :( \n";
+        public string ErrorWA = "Wrong Number of Args accepted, max: ";
 
         public string ErrorFor = " use For(<Variable>;<Initial Value>;<End Value>)";
     }

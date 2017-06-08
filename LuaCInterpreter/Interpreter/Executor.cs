@@ -75,8 +75,9 @@ namespace LuaCInterpreter
 
         public void Execute(string Line)
         {
-            if (Line.IndexOf(Refer.Comment) > -1) { Line = Line.Substring(0,Line.IndexOf(Refer.Comment)); }
-            Line=Line.Replace(Refer.Else, "").Replace(Refer.If, "").Replace(Refer.For, "").Replace(Refer.While, "").Replace(Refer.Then, "").Replace(Refer.Do, "").Replace(Refer.End,"");
+            if (Line.IndexOf(Refer.Comment) > -1) { Line = Line.Substring(0, Line.IndexOf(Refer.Comment)); }
+            if (Line.IndexOf(Refer.Function) > -1) { return; }
+            Line =Line.Replace(Refer.Else, "").Replace(Refer.If, "").Replace(Refer.For, "").Replace(Refer.While, "").Replace(Refer.Then, "").Replace(Refer.Do, "").Replace(Refer.End,"");
             if (Line == "") { return; }
             /*//load file
             foreach(string f in Directory.GetFiles((Directory.GetCurrentDirectory() + "\\Assets" + Vars.Replace("CurrentLocation")).Replace(" ", "")))
@@ -129,17 +130,46 @@ namespace LuaCInterpreter
             }
             if(Line.IndexOf("(")>-1 && Line.IndexOf(")") > -1)
             {
-                string f = Line.Substring(0, Line.IndexOf("(")).Replace(" ","");
-                if (Func.Exist(f)) {
-                    List<string> l = Func.Get(f);
-                    l.RemoveAt(0);
-                    Execute(l);
-                    return;
+                string rf = Line;
+                if (Line.IndexOf("=") > -1) { rf = Line.Substring(Line.IndexOf("=") + 1); }
+                string arg = Line.Substring(Line.IndexOf("("));
+                arg.Substring(0, arg.IndexOf(")"));
+                string[] args = arg.Substring(arg.IndexOf("(") + 1, arg.LastIndexOf(")") - 1 - arg.IndexOf("(")).Split(';');
+                bool brea = false;
+                foreach (string s in Func.GetAll())
+                {
+                    if (rf.IndexOf(s) > -1)
+                    {
+                        foreach (string s1 in Refer.Replaceble)
+                        {
+                            foreach (string s2 in Refer.Replaceble)
+                            {
+                                if (rf.IndexOf(s2 + s + s1 + arg) > -1) { rf = rf.Replace(s2 + s + s1 + arg, s2 + ExecuteFunction(Func.Get(s),args.ToList()) + s1); brea = true; break; }
+                                if (rf.IndexOf(s1 + s + s2 + arg) > -1) { rf = rf.Replace(s1 + s + s2 + arg, s1 + ExecuteFunction(Func.Get(s), args.ToList()) + s2); brea = true; break; }
+                                if (rf == s + arg) { rf = rf.Replace(s + arg, ExecuteFunction(Func.Get(s), args.ToList())); brea = true; break; }
+
+                                if (rf.IndexOf(s2 + s + s1) > -1) { rf = rf.Replace(s2 + s + s1, s2 + ExecuteFunction(Func.Get(s), args.ToList()) + s1); brea = true; break; }
+                                if (rf.IndexOf(s1 + s + s2) > -1) { rf = rf.Replace(s1 + s + s2, s1 + ExecuteFunction(Func.Get(s), args.ToList()) + s2); brea = true; break; }
+                                if (rf == s) { rf = rf.Replace(s, ExecuteFunction(Func.Get(s), args.ToList())); brea = true; break; }
+                            }
+                            if (brea) { break; }
+                        }
+                    }
+                    if (brea) { break; }
+                }
+                if (Line.IndexOf("=") > -1)
+                {
+                    Line = Line.Substring(0,Line.IndexOf("=")+1)+rf.Replace("\t", "").Replace(" ", "");
+                }
+                else
+                {
+                    Line = rf;
                 }
             }
 
             if (!LineInter(Line))
             {
+                if (Line.Replace("\t","") == "") { return; }
                 Ex.Get(Refer.Print).DynamicInvoke(Refer.ErrorHead + Refer.ErrorNFC + " {" + Line + "}");
             }
         }
@@ -156,11 +186,13 @@ namespace LuaCInterpreter
                 {
                     string[] args = Lines[line].Substring(Lines[line].IndexOf("(") + 1, Lines[line].LastIndexOf(")") - 1 - Lines[line].IndexOf("(")).Split(',');
                     string name = Lines[line].Substring(0, Lines[line].IndexOf("(")).Replace(Refer.Function, "").Replace(" ", "");
+                    bool ret = false;
                     List<string> l = new List<string>();
                     string openclose = "";
                     while (Lines[line].IndexOf(Refer.FunctionEnd) < 0 || openclose != "")
                     {
                         if (Lines[line].IndexOf(Refer.End) > -1) { Lines[line] = Lines[line].Replace(Refer.End, " "); openclose += "}"; openclose = openclose.Replace("{}", ""); if (openclose == "") { break; } }
+                        if (Lines[line].IndexOf(Refer.Return) > -1) { ret = true; }
                         l.Add(Lines[line]);
                         Lines.RemoveAt(line);
                     }
@@ -173,7 +205,7 @@ namespace LuaCInterpreter
             //end */
             //Lines = new List<string>();
             //foreach(string s in _Lines) { Lines.Add(s); }
-            for(int line = 0; line < Lines.LongCount(); line++)
+            for (int line = 0; line < Lines.LongCount(); line++)
             {
                 if (Lines[line].IndexOf(Refer.If) > -1 && Lines[line].IndexOf(Refer.Then) > -1)
                 {
@@ -196,13 +228,66 @@ namespace LuaCInterpreter
                             List<string> _prog = new List<string>();
                             for (int i = line; i < Lines.LongCount(); i++) { _prog.Add(Lines[i]); }
                             Lines = WHILE.WHILE(_prog);
-                        }else
+                        }
+                        else
                         {
                             Execute(Lines[line]);
                         }
                     }
                 }
             }
+        }
+        #endregion
+
+        #region Execute function
+        public string ExecuteFunction(List<string> _Lines,List<string> Args)
+        {
+            string[] args = _Lines[0].Substring(_Lines[0].IndexOf("(") + 1, _Lines[0].LastIndexOf(")") - 1 - _Lines[0].IndexOf("(")).Split(';');
+            if(args.LongCount()!= Args.LongCount()) { Ex.Get(Refer.Print).DynamicInvoke(Refer.ErrorHead +Refer.ErrorWA+args.LongCount()+"\n"); return ""; }
+
+            for (int i=0;i<args.LongCount();i++)
+            {
+                Execute(args[i] + " = " + Args[i] + ";");
+            }
+
+            List<string> Lines = new List<string>();
+            foreach(string s in _Lines) { Lines.Add(s); }
+            for (int line = 0; line < Lines.LongCount(); line++)
+            {
+                if (Lines[line].IndexOf(Refer.If) > -1 && Lines[line].IndexOf(Refer.Then) > -1)
+                {
+                    List<string> _prog = new List<string>();
+                    for (int i = line; i < Lines.LongCount(); i++) { _prog.Add(Lines[i]); }
+                    Lines = IF.IF(_prog);
+                    if (Lines[line].IndexOf(Refer.Return) > -1) { return Vars.Replace(Lines[line]).Replace(Refer.Return, "").Replace(";", ""); }
+                }
+                else
+                {
+                    if (Lines[line].IndexOf(Refer.For) > -1 && Lines[line].IndexOf(Refer.Do) > -1)
+                    {
+                        List<string> _prog = new List<string>();
+                        for (int i = line; i < Lines.LongCount(); i++) { _prog.Add(Lines[i]); }
+                        Lines = FOR.FOR(_prog);
+                        if (Lines[line].IndexOf(Refer.Return) > -1) { return Vars.Replace(Lines[line]).Replace(Refer.Return, "").Replace(";", ""); }
+                    }
+                    else
+                    {
+                        if (Lines[line].IndexOf(Refer.While) > -1 && Lines[line].IndexOf(Refer.Do) > -1)
+                        {
+                            List<string> _prog = new List<string>();
+                            for (int i = line; i < Lines.LongCount(); i++) { _prog.Add(Lines[i]); }
+                            Lines = WHILE.WHILE(_prog);
+                            if (Lines[line].IndexOf(Refer.Return) > -1) { return Vars.Replace(Lines[line]).Replace(Refer.Return, "").Replace(";", ""); }
+                        }
+                        else
+                        {
+                            if (Lines[line].IndexOf(Refer.Return) > -1) { return Vars.Replace(Lines[line]).Replace(Refer.Return, "").Replace(";", ""); }
+                            Execute(Lines[line]);
+                        }
+                    }
+                }
+            }
+            return "";
         }
         #endregion
 

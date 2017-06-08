@@ -16,13 +16,17 @@ namespace LuaCInterpreter.Variables
 
         public void Set()
         {
+            /*
             if (!Directory.Exists(Directory.GetCurrentDirectory() + "/_vars/")) { Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/_vars/"); }
             File.WriteAllText(Directory.GetCurrentDirectory() + "/_vars/global.bin", JsonConvert.SerializeObject(vars));
+            //*/
         }
         public void Get()
         {
+            /*
             if (!Directory.Exists(Directory.GetCurrentDirectory() + "/_vars/")) { return; }
             vars = JsonConvert.DeserializeObject<List<VariablesStruct>>(File.ReadAllText(Directory.GetCurrentDirectory() + "/_vars/global.bin"));
+            //*/
         }
     }
     class Local
@@ -33,14 +37,18 @@ namespace LuaCInterpreter.Variables
 
         public void Set()
         {
+            /*
             if (!Directory.Exists(Directory.GetCurrentDirectory() + "/_vars/")) { Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/_vars/"); }
             File.WriteAllText(Directory.GetCurrentDirectory() + "/_vars/local.bin", JsonConvert.SerializeObject(vars));
+            //*/
         }
         public void Get()
         {
+            /*
             if (!Directory.Exists(Directory.GetCurrentDirectory() + "/_vars/")) { return; }
             if(!File.Exists(Directory.GetCurrentDirectory() + "/_vars/local.bin")) { return; }
             vars = JsonConvert.DeserializeObject<List<VariablesStruct>>(File.ReadAllText(Directory.GetCurrentDirectory() + "/_vars/local.bin"));
+            //*/
         }
     }
 }

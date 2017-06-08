@@ -73,7 +73,9 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Components\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="Assets\_root\home\%24bin.ocult">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

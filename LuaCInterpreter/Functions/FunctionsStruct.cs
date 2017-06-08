@@ -10,5 +10,6 @@ namespace LuaCInterpreter.Functions
     {
         public string Name = "";
         public List<string> Lines = new List<string>();
+        public bool Return = false;
     }
 }

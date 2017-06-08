@@ -29,6 +29,15 @@ namespace LuaCInterpreter.Functions
             }
             return new List<string>();
         }
+        public List<string> GetAll()
+        {
+            List<string> l = new List<string>();
+            foreach (FunctionsStruct f in Fs)
+            {
+                l.Add(f.Name);
+            }
+            return l;
+        }
 
         public bool Exist(string name)
         {
@@ -44,7 +53,20 @@ namespace LuaCInterpreter.Functions
             FunctionsStruct fu = new FunctionsStruct();
             fu.Name = name;
             fu.Lines = Lines;
-            for (int i =0;i< Fs.LongCount();i++)
+            for (int i = 0; i < Fs.LongCount(); i++)
+            {
+                if (Fs[i].Name == name) { Fs[i] = fu; return; }
+            }
+            Fs.Add(fu);
+        }
+
+        public void Set(string name, List<string> Lines,bool Return)
+        {
+            FunctionsStruct fu = new FunctionsStruct();
+            fu.Name = name;
+            fu.Lines = Lines;
+            fu.Return = Return;
+            for (int i = 0; i < Fs.LongCount(); i++)
             {
                 if (Fs[i].Name == name) { Fs[i] = fu; return; }
             }
