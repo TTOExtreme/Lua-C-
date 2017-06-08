@@ -46,6 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Conditionals\Condition.cs" />
+    <Compile Include="Functions\Functions.cs" />
+    <Compile Include="Functions\FunctionsStruct.cs" />
     <Compile Include="Interpreter\Executor.cs" />
     <Compile Include="Interpreter\ExternalMethods.cs" />
     <Compile Include="Conditionals\ForStatement.cs" />

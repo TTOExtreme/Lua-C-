@@ -16,6 +16,7 @@ namespace LuaCInterpreter
         private WhileStatement WHILE = new WhileStatement();
         private ExternalMethods Ex;
         private Variables.Variables Vars;
+        private Functions.Functions Func = new Functions.Functions();
         
         internal void Init(ExternalMethods Exm, Variables.Variables vars)
         {
@@ -40,8 +41,9 @@ namespace LuaCInterpreter
 
             foreach (string f in Directory.GetFiles((Directory.GetCurrentDirectory() + "\\Assets" + Vars.Replace("CurrentLocation")).Replace(" ", "")))
             {
-                if (Line + ".lua" == f) {
-                    Execute(File.ReadAllLines((Directory.GetCurrentDirectory() + "\\Assets" + Vars.Replace("CurrentLocation")).Replace(" ", "") + "\\" + f).ToList());
+                string c = f.Replace((Directory.GetCurrentDirectory() + "\\Assets" + Vars.Replace("CurrentLocation")).Replace(" ", ""), "");
+                if (Line == c) {
+                    Execute(File.ReadAllLines(f).ToList());
                 }
             }
             foreach (string met in Ex.GetMethods())
@@ -125,6 +127,16 @@ namespace LuaCInterpreter
                     }
                 }
             }
+            if(Line.IndexOf("(")>-1 && Line.IndexOf(")") > -1)
+            {
+                string f = Line.Substring(0, Line.IndexOf("(")).Replace(" ","");
+                if (Func.Exist(f)) {
+                    List<string> l = Func.Get(f);
+                    l.RemoveAt(0);
+                    Execute(l);
+                    return;
+                }
+            }
 
             if (!LineInter(Line))
             {
@@ -135,8 +147,32 @@ namespace LuaCInterpreter
         #region Execute File
         public void Execute(List<string> _Lines)
         {
+            //compile
             List<string> Lines = new List<string>();
-            foreach(string s in _Lines) { Lines.Add(s); }
+            foreach (string s in _Lines) { Lines.Add(s); }
+            for (int line = 0; line < Lines.LongCount(); line++)
+            {
+                if (Lines[line].IndexOf(Refer.Function) > -1)
+                {
+                    string[] args = Lines[line].Substring(Lines[line].IndexOf("(") + 1, Lines[line].LastIndexOf(")") - 1 - Lines[line].IndexOf("(")).Split(',');
+                    string name = Lines[line].Substring(0, Lines[line].IndexOf("(")).Replace(Refer.Function, "").Replace(" ", "");
+                    List<string> l = new List<string>();
+                    string openclose = "";
+                    while (Lines[line].IndexOf(Refer.FunctionEnd) < 0 || openclose != "")
+                    {
+                        if (Lines[line].IndexOf(Refer.End) > -1) { Lines[line] = Lines[line].Replace(Refer.End, " "); openclose += "}"; openclose = openclose.Replace("{}", ""); if (openclose == "") { break; } }
+                        l.Add(Lines[line]);
+                        Lines.RemoveAt(line);
+                    }
+                    //l.Add(Lines[line]);//add the end line
+                    Lines.RemoveAt(line);
+                    line--;
+                    Func.Set(name, l);
+                }
+            }
+            //end */
+            //Lines = new List<string>();
+            //foreach(string s in _Lines) { Lines.Add(s); }
             for(int line = 0; line < Lines.LongCount(); line++)
             {
                 if (Lines[line].IndexOf(Refer.If) > -1 && Lines[line].IndexOf(Refer.Then) > -1)

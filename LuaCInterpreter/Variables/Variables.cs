@@ -30,8 +30,8 @@ namespace LuaCInterpreter.Variables
                         {
                             if (command.IndexOf(s2 + v.Name + s1) > -1) { command = command.Replace(s2 + v.Name + s1, s2 + v.Value.ToString() + s1); }
                             if (command.IndexOf(s1 + v.Name + s2) > -1) { command = command.Replace(s1 + v.Name + s2, s1 + v.Value.ToString() + s2); }
-                            if (command.IndexOf(v.Name + s1) > -1) { command = command.Replace(v.Name + s1, v.Value.ToString() + s1); }
-                            if (command.IndexOf(s1 + v.Name) > -1) { command = command.Replace(s1 + v.Name, s1 + v.Value.ToString()); }
+                            //if (command.IndexOf(v.Name + s1) > -1) { command = command.Replace(v.Name + s1, v.Value.ToString() + s1); }
+                            //if (command.IndexOf(s1 + v.Name) > -1) { command = command.Replace(s1 + v.Name, s1 + v.Value.ToString()); }
                             if (command == v.Name) { command = command.Replace(v.Name, v.Value.ToString()); }
                         }
                     }
