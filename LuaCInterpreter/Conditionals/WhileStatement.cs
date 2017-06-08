@@ -44,6 +44,7 @@ namespace LuaCInterpreter
             while (Cond.IsTrue("("+args[0]+")"))
             {
                 //Task.Delay(10);
+
                 if (prog[count].IndexOf(Refer.Do) > -1) { openclose += "{"; }
 
                 //prog.RemoveAt(0);
